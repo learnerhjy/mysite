@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <div>
+        <a href = "{% url 'home' %}">
+	    <h3>hjy的博客</h3>
+        </a>
+    <div>
+</body>
+</html>

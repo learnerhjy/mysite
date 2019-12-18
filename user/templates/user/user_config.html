@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+
+{% block title%}
+    我的网站|用户设置
+{% endblock %}
+
+{% block content %}  
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-10 col-xs-offset-2">
+        {% if user.is_authenticated %}
+        {% if user.userconfig.is_email_active%}
+            <input id="set_config" type="checkbox" checked="true"> <label>是否开启邮件通知</label> 
+        {% else %}
+            <input id="set_config" type="checkbox"> <label>是否开启邮件通知</label> 
+        {% endif %}
+          <button id="save_config" class="btn btn-primary">保存</button>        
+        {% else %}
+          <h3>未登录,跳转至主页...</h3>
+          <script type="text/javascript">
+            {
+              window.location.href='/';
+            }
+          </script>
+        {% endif %}
+
+
+
+			</div>
+		</div>
+	</div> 
+<script type="text/javascript">
+
+
+  $("#save_config").click(function(event){
+      event.preventDefault();
+      var status;
+      if($("#set_config").prop("checked")){
+        status = "true";
+      }else{
+        status = "false";
+      }
+      console.log(status);
+      $.ajax({
+        url:"{% url 'user_config' %}",
+        type:"GET",
+        data:{'status':status},
+        cache:false,
+        success:function(data){
+          console.log(data);
+            if(data['status'] == 'SUCCESS'){
+              alert('保存成功');
+            }else{
+              alert('保存失败');
+            }
+        }
+      });
+  });
+
+
+</script>
+{% endblock %}

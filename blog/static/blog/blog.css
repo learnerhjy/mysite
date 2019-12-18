@@ -1,0 +1,72 @@
+#Snow{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99999;
+    background: rgba(255,255,240,0.1);
+    pointer-events: none;
+}
+
+ul.blog-types{
+	list-style-type:none;
+}
+ul.blog-dates{
+	list-style-type:none;
+}
+div.blog:not(:last-child){
+	margin-bottom: 2em;
+	padding-bottom: 1em;
+	border-bottom: 1px solid #eee;
+}
+div.blog h3{
+	margin-top:0.5em;
+}
+
+ul.blog-info-description{
+	list-style-type: none;
+	margin-bottom: 2em;
+}
+ul.blog-info-description li{
+	display: inline-block;
+	margin-right: 2em;
+}
+div.blog-content{
+	text-indent: 2em;
+	margin-bottom: 2em;
+}
+div.blog-more{
+	margin-top: :1em;
+}
+
+div.comment-area{
+	margin-top: 2em;
+}
+h3.comment-area-title{
+	border-bottom: 1px solid #ccc;
+	padding-bottom: 0.4em;
+}
+
+div.django-ckeditor-widget{
+	width:100%;
+}
+
+div.comment{
+	margin-bottom: 0.5em;
+	padding-bottom: 0.5em;
+}
+div.reply{
+
+}
+
+div.like{
+	color:#337ab7;
+	cursor:pointer;
+	display: inline-block;
+	padding:0.5em 0.3em;
+}
+
+div.like .active{
+	color:#f22;
+}

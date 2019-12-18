@@ -1,0 +1,72 @@
+{% extends 'form.html' %}
+
+{% block other_buttons %}
+<button id="send_code" class="btn btn-default">发送</button>
+{% endblock %}
+
+{% block script_extends %}
+<script type="text/javascript">
+	$("#send_code").click(function(event){
+		event.preventDefault();
+    var status = 'SUCCESS';
+		var email = $("#id_email").val();
+		if (email==""){
+			$("#tip").text('邮箱不能为空')
+			return false;
+		}
+
+           $.ajax({
+               url:"{% url 'send_validation_code'%}",
+               type:"GET",
+               async:false,
+               data:{'email':email,'type':'bind_email_code'},
+               cache:false,
+                success:function(data){
+                    console.log(data);
+                    if (data['status'] == "ERROR"){
+                        var message = '';
+                        status = 'ERROR';
+                        console.log(status);
+                        if (data['code']==399){
+                          message = '该邮箱已绑定';
+                        }else if(data['code']==400){
+                          message = '邮箱不能为空';
+                        }
+                        alert(data['status']+message);
+                        //怎么在这停止不继续执行下面的js
+                        status = 'ERROR';
+
+                    }
+                },
+                
+            });
+              console.log(status);
+              if(status=='ERROR'){
+                return false;
+              }
+              //把按钮变灰
+              $("#id_email").addClass('disabled');
+              $("#id_email").attr('disabled',true);
+              $(this).addClass('disabled');
+              $(this).attr('disabled',true);
+              var time = 30;
+              $(this).text(time + 's');
+              var interval = setInterval(() => {
+              if(time <= 0){
+                clearInterval(interval);
+                $(this).removeClass('disabled');
+                $(this).attr('disabled',false);
+                $(this).text('发送');
+                return false;
+              }
+
+              time --;
+              $(this).text(time + 's');
+               },1000);
+              
+
+
+	});
+
+</script>
+{% endblock %}

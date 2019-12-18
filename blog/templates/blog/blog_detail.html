@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+
+{% block title%}
+博客 {{blog.title}}
+{% endblock %}
+
+{% block nav_blog_active %}
+	active
+{% endblock%}
+
+{% load staticfiles %}
+{% load comment_tags %}
+{% load like_tags %}
+{% block header_extends %}
+	<link rel="stylesheet" href="{% static 'blog/blog.css' %}">
+	<script type="text/javascript" src="{% static "ckeditor/ckeditor-init.js" %}"></script>
+	<script type="text/javascript" src="{% static "ckeditor/ckeditor/ckeditor.js" %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+	<div class="row">
+		<div class="col-xs-10">
+			<h3>{{blog.title}}</h3>
+			<ul class="blog-info-description">
+				<li><span class="label label-default">作者</span>
+					<span class="glyphicon glyphicon-user"></span>
+					<a href="{% url 'user_info' blog.author.pk %}">{{blog.author}}</a>
+				</li>
+				<li><span class="label label-default">分类</span>
+					<span class="glyphicon glyphicon-tag"></span>
+					<a href = "{% url 'blogs_with_type' blog.blog_type.pk%}">
+						{{blog.blog_type}}
+					</a>
+				</li>
+				<li><span class="label label-default">创建时间</span>
+					<span class="glyphicon glyphicon-time"></span>{{blog.create_time|date:"Y-m-d H:i:s"}}
+				</li>
+				<li>
+					<span class="label label-default">阅读次数</span>
+					<span class="glyphicon glyphicon-sunglasses"></span>({{blog.get_read_num}})
+				</li>  
+				<li>
+					<span class="label label-default">评论次数</span>
+					<span class="glyphicon glyphicon-list-alt"></span>({% get_comment_count blog %})
+				</li> 
+			</ul>
+			<div class="blog-content">{{blog.content|safe}}</div>
+			<div class="like" onclick="likeChange(this,'{% get_content_type blog %}',{{ blog.pk }})">
+				<span class="glyphicon glyphicon-thumbs-up {% get_like_status blog %}"></span>
+				<span class="liked-num">{% get_like_count blog %}</span>
+				<span>like</span>
+			</div>
+			<div class="blog-more">
+				{% if previous_blog %}
+				<p>上一篇:<a href="{% url 'blog_detail' previous_blog.pk%}">{{previous_blog.title}}</a></p>
+				{% else %}
+				<p>上一篇:暂无博客</p>
+				{% endif %}
+				{% if next_blog %}
+				<p>下一篇:<a href="{% url 'blog_detail' next_blog.pk%}">{{next_blog.title}}</a></p>
+				{% else %}
+				<p>下一篇:暂无博客</p>
+				{% endif %}
+			</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="col-xs-10 col-xs-offset-1">
+	<div class="comment-area">
+	<h3 class="comment-area-title">提交评论</h3>
+	{% if user.is_authenticated%}
+		<form id="comment_form" action="{% url 'update_comment' %}" method="post" style="overflow:hidden">
+ 		{% csrf_token %}
+ 			<label for="comment_text">{{ user.username }},欢迎评论</label>
+ 			<div id="reply_content_container" style="display:none;">
+ 				<p>回复:</p>
+ 				<div id="reply_content">
+
+ 				</div>
+ 			</div>
+ 			{% get_comment_form blog as comment_form%}
+ 			{{ comment_form }}
+ 			<span id="comment_error" class="text-danger pull-left"></span>
+		<input type="submit" value="评论" class="btn btn-primary pull-right">
+		</form>
+	{% else %}
+		<p>未登录，登录后才能评论</p>
+			<a class = "btn btn-primary"href="{% url 'login' %}?from={{ request.get_full_path }}">登录</a>
+			or
+			<a class = "btn btn-danger" href="{% url 'register' %}?from={{ request.get_full_path }}">注册</a>
+	{% endif %}
+	</div>
+	<div class="comment-area">
+	<h3 class="comment-area-title">评论列表</h3>
+
+			<div id="comment_list">
+			{% get_comments blog as comments%}
+			{% for comment in comments %}
+
+			<div id = "root_comment_{{ comment.pk }}" class="comment">	
+				<span>{{comment.author.get_username_or_nickname}}</span>
+				<span>({{ comment.date|date:"Y-m-d H:i:s"}}):</span>
+				<div id="comment_{{ comment.pk }}" class="list-group-item">
+					{{ comment.text|safe }}
+				</div>
+				<div class="like" onclick="likeChange(this,'{% get_content_type comment %}',{{ comment.pk }})">
+					<span class="glyphicon glyphicon-thumbs-up {% get_like_status comment %}"></span>
+					<span class="liked-num">{% get_like_count comment %}</span>
+				</div>
+				{% if user.is_authenticated %}
+					<a href="javascript:reply({{ comment.pk }},'true')">回复</a>
+				{% else %}
+					<a href="javascript:reply({{ comment.pk }},'false')">回复</a>
+				{% endif %}
+
+
+				{% for reply in comment.root_comment.all %}
+					<div class="reply">
+						<span>{{reply.author.get_username_or_nickname}}</span>
+						<span>({{ reply.date|date:"Y-m-d H:i:s"}})回复</span>
+						<span>{{reply.reply_to.get_username_or_nickname}}:</span>
+					<div id="comment_{{ reply.pk }}">
+						{{ reply.text|safe }}
+					</div>
+					<div class="like" onclick="likeChange(this,'{% get_content_type reply %}',{{ reply.pk }})">
+						<span class="glyphicon glyphicon-thumbs-up {% get_like_status reply %}"></span>
+						<span class="liked-num">{% get_like_count reply %}</span>
+					</div>
+					{% if user.is_authenticated %}
+						<a href="javascript:reply({{ reply.pk }},'true')">回复</a>
+					{% else %}
+						<a href="javascript:reply({{ reply.pk }},'false')">回复</a>
+					{% endif %}
+				{% empty %}
+				{% endfor %}
+				
+			</div>
+			{% empty %}
+			<span id="no_comment" class="text-danger">暂无评论</span>
+			{% endfor %}
+
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block script_extends %}
+	<script type="text/javascript">
+		String.prototype.format = function(){
+			var str = this;
+			for (var i = 0; i < arguments.length;i++){
+				var str = str.replace(new RegExp('\\{' + i + '\\}','g'),arguments[i])
+			};
+			return str;
+		}
+		$("#comment_form").submit(function(){
+			$("#comment_error").text('')
+			//判断是否为空
+			if(CKEDITOR.instances["id_text"].document.getBody().getText().trim()==''){
+				$("#comment_error").text('评论内容不能为空');
+				return false;
+			}
+			//更新数据到textarea
+			CKEDITOR.instances['id_text'].updateElement();
+			//异步提交
+			$.ajax({
+				url:"{% url 'update_comment' %}",
+				type:'POST',
+				data:$(this).serialize(),
+				cache:false,
+				success:function(data){
+					console.log(data);
+					if(data['status']=="SUCCESS"){
+						if($('#reply_comment_id').val()=='0'){
+							//插入评论
+							var comment_html = 
+							'<div id = "root_comment_{0}" class="comment">'+	
+								'<span>{1}</span>'+
+								'<span>({2}):</span>'+
+									'<div id="comment_{0}">{3}</div>'+
+									'<div class="like" onclick="likeChange(this,\'{4}\',{0})">'+
+										'<span class="glyphicon glyphicon-thumbs-up"></span>'+
+										'<span class="liked-num">0	</span>'+
+									'</div>'+
+									'<a href="javascript:reply({0},\'true\')">回复</a>' +
+							'</div>';
+
+							comment_html = comment_html.format(data['pk'],data['username'],data['date'],data['text'],data['content_type'],);
+							$("#comment_list").prepend(comment_html);
+						}else{
+							//插入回复
+							var reply_html = 
+							'<div class="reply">' +
+								'<span>{1}</span>' +
+								'<span>({2})回复</span>' +
+								'<span>{4}:</span>' +
+								'<div id="comment_{0}">{3}</div>' +					
+								'<div class="like" onclick="likeChange(this,\'{5}\',{0})">' +
+									'<span class="glyphicon glyphicon-thumbs-up"></span>' +
+									'<span class="liked-num">0	</span>' +
+								'</div>' +
+								'<a href="javascript:reply({0},\'true\')">回复</a>' +
+							'</div>';
+							reply_html = reply_html.format(data['pk'],data['username'],data['date'],data['text'],data['reply_to'],data['content_type']);
+							$("#root_comment_" + data['root_pk']).append(reply_html);
+						}
+						//清空编辑框的内容
+						CKEDITOR.instances['id_text'].setData('');
+						$('#reply_content_container').hide();
+						$('#reply_comment_id').val('0');
+						$("#no_comment").remove()	
+					}
+					else{					
+						//显示错误信息
+						$("#comment_error").text(data['message']);
+
+					}
+				},
+				error:function(xhr){
+					console.log(xhr);
+				}
+			});
+			return false;
+		});
+		function reply(reply_comment_id,is_authenticated){
+			console.log(is_authenticated);
+			if(is_authenticated=='true'){
+				
+				$('#reply_comment_id').val(reply_comment_id);
+				var html = $("#comment_" + reply_comment_id).html();
+				$('#reply_content').html(html);
+				$('#reply_content_container').show();
+				$('html').animate({scrollTop: $('#comment_form').offset().top - 60},300,function(){
+				CKEDITOR.instances['id_text'].focus();});
+				
+				//console.log('here');
+				//id = "reply_form_" + reply_comment_id;
+				//document.getElementById("reply_btn_"+reply_comment_id).style.display = "none";
+				//document.getElementById("reply_form_"+reply_comment_id).style.display = "";
+				//var reply_container = 
+				//'<form ' +
+				//'id="comment_form" action="{0}" method="post"style="overflow:hidden">' +
+ 				//'{1}' +
+ 				//'{2}' +
+ 				//'<label for="comment_text">{{ user.username }},欢迎评论</label>' +
+ 				//'{3}' +
+ 				//'<span id="comment_error" class="text-danger pull-left"></span>' +
+				//'<input type="submit" value="评论" class="btn btn-primary pull-right">' +
+				//'</form>';
+				//$("#"+id).append(reply_container);
+			}
+			else{
+				$('#login_modal').modal('show');
+			}
+
+		}
+		function likeChange(obj,content_type,object_id){
+			var is_liked = obj.getElementsByClassName('active').length == 0
+			$.ajax({
+				url:"{% url 'like_change' %}",
+				type:'GET',
+				data:{
+					content_type:content_type,
+					object_id:object_id,
+					is_liked:is_liked,
+				},
+				cache:false,
+				success:function(data){
+					console.log(data);
+					if (data['status'] == 'SUCCESS'){
+						//更新点赞状态
+						var like_status = $(obj.getElementsByClassName('glyphicon'));
+						if (is_liked){
+							//点赞
+							like_status.addClass('active');
+						}
+						else{
+							//取消点赞
+							like_status.removeClass('active');
+						}
+						//更新点赞数量
+						var like_num = $(obj.getElementsByClassName('liked-num'));
+						like_num.text(data['like_num'])
+
+					}
+					else{
+						if (data['code'] == '399'){
+							$('#login_modal').modal('show')
+						}
+						else{alert(data['message'])}
+					}
+				},
+				error:function(xhr){
+					console.log(chr);
+				}
+			});
+
+		}
+	</script>
+
+
+
+
+
+{% endblock %}

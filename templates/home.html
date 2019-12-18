@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block title%}
+    我的网站|首页
+{% endblock %}
+
+{% block nav_home_active %}
+	active
+{% endblock%}
+
+{% block header_extends %}
+    <link rel="stylesheet" href="{% static 'home.css' %}">
+    <script src="http://cdn.highcharts.com.cn/highcharts/highcharts.js"></script>
+{% endblock%}
+{% block content %}
+    <div class="jumbotron">
+        <h1>welcome!</h1>
+    </div>
+    <!-- 图表容器 DOM -->
+    <div id="container"></div>
+    <div class="hot-data">
+    <p>今日热门博客</p>
+    <ul>
+        {% for hot_data in today_hot_data %}
+        <a href="{% url 'blog_detail' hot_data.content_object.pk %}">{{hot_data.content_object.title}}({{hot_data.read_num}})</a>
+        {% empty %}
+        暂无热门博客
+        {% endfor%}
+    </ul>
+    </div>
+    <div class="hot-data">
+    <p>昨日热门博客</p>
+    <ul>
+        {% for hot_data in yesterday_hot_data %}
+        <a href="{% url 'blog_detail' hot_data.content_object.pk %}">{{hot_data.content_object.title}}({{hot_data.read_num}})</a>
+        {% empty %}
+        暂无热门博客
+        {% endfor%}
+    </ul>
+    </div>
+    <div class="hot-data">
+    <p>近七天内热门博客</p>
+    <ul>
+        {% for hot_blog in hot_blogs_of_seven_days %}
+        <a href="{% url 'blog_detail' hot_blog.pk %}">{{hot_blog.title}}({{hot_blog.read_num_sum}})</a>
+        {% empty %}
+        暂无热门博客
+        {% endfor%}
+    </ul>
+    </div>
+    <script>
+        // 图表配置
+        var options = {
+            chart: { type: 'line' },
+            title: { text: null },
+            xAxis: {
+                categories: {{ dates|safe }}, // x轴分类
+                tickmarkPlacement : 'on',   
+            },
+            yAxis: {
+                title: { text: null },
+                labels: {enabled : false },
+                gridLineDashStyle : 'Dash',
+            },
+            series: [{                              
+                name: '阅读量',                        
+                data: {{ read_nums }}                     
+            },],
+            plotOptions: {
+            	line: {
+            		dataLabels: {
+            			enabled: true
+            		}
+            	}
+            },
+            legend : {enabled : false },
+            credits : {enabled : false },
+        };
+        // 图表初始化函数
+        var chart = Highcharts.chart('container', options);
+    </script>
+{% endblock %}

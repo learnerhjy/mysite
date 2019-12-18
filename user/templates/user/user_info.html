@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+
+{% block title%}
+    我的网站|用户信息
+{% endblock %}
+
+{% block content %}  
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-10 col-xs-offset-2">
+        {% if user.is_authenticated %}
+          {% if user_visited.pk == user.pk %}
+              <h3>用户名:{{user.username}}</h3>
+              <ul>
+                <li>邮箱:{% if user.email %}{{user.email}}{% else %}未绑定邮箱 <a href="{% url 'bind_email' %}">绑定邮箱</a>{% endif %}</li>
+                <li>最后登录时间:{{user.last_login|date:"Y-m-d H:i:s"}}</li>
+                <li>昵称:{% if not user.get_nickname %}暂无昵称{%else%}{{user.get_nickname}}{% endif %}<a href="{% url 'change_nickname' %}?from={{request.get_full_path}}"> 修改昵称</a></li>
+                <li><a href="{% url 'change_password' %}">修改密码</a></li>
+              </ul>
+          {% else %}
+              <h3>用户名:{{user_visited.username}}</h3>
+              <ul>
+                <li>邮箱:{% if user_visited.email %}{{user_visited.email}}{% else %}未绑定邮箱{% endif %}</li>
+                <li>最后登录时间:{{user_visited.last_login|date:"Y-m-d H:i:s"}}</li>
+                <li>昵称:</li>
+              </ul>     
+          {% endif %}      
+        {% else %}
+          <h3>未登录,跳转至主页...</h3>
+          <script type="text/javascript">
+            {
+              window.location.href='/';
+            }
+          </script>
+        {% endif %}
+
+
+
+			</div>
+		</div>
+	</div> 
+{% endblock %}
