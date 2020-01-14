@@ -42,7 +42,7 @@
     <div class="hot-data">
     <p>近七天内热门博客</p>
         {% for hot_blog in hot_blogs_of_seven_days %}
-        <a href="{% url 'blog_detail' hot_data.content_object.pk %}" class="list-group-item list-group-item-warning">
+        <a href="{% url 'blog_detail' hot_blog.pk %}" class="list-group-item list-group-item-warning">
             {{hot_blog.title}}({{hot_blog.read_num_sum}})
         </a>
         {% empty %}
