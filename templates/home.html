@@ -21,33 +21,33 @@
     <div id="container"></div>
     <div class="hot-data">
     <p>今日热门博客</p>
-    <ul>
         {% for hot_data in today_hot_data %}
-        <a href="{% url 'blog_detail' hot_data.content_object.pk %}">{{hot_data.content_object.title}}({{hot_data.read_num}})</a>
+            <a href="{% url 'blog_detail' hot_data.content_object.pk %}" class="list-group-item list-group-item-success">
+            {{hot_data.content_object.title}}({{hot_data.read_num}})
+            </a>
         {% empty %}
         暂无热门博客
         {% endfor%}
-    </ul>
     </div>
     <div class="hot-data">
     <p>昨日热门博客</p>
-    <ul>
         {% for hot_data in yesterday_hot_data %}
-        <a href="{% url 'blog_detail' hot_data.content_object.pk %}">{{hot_data.content_object.title}}({{hot_data.read_num}})</a>
+        <a href="{% url 'blog_detail' hot_data.content_object.pk %}" class="list-group-item list-group-item-info">
+            {{hot_data.content_object.title}}({{hot_data.read_num}})
+        </a>
         {% empty %}
         暂无热门博客
         {% endfor%}
-    </ul>
     </div>
     <div class="hot-data">
     <p>近七天内热门博客</p>
-    <ul>
         {% for hot_blog in hot_blogs_of_seven_days %}
-        <a href="{% url 'blog_detail' hot_blog.pk %}">{{hot_blog.title}}({{hot_blog.read_num_sum}})</a>
+        <a href="{% url 'blog_detail' hot_data.content_object.pk %}" class="list-group-item list-group-item-warning">
+            {{hot_blog.title}}({{hot_blog.read_num_sum}})
+        </a>
         {% empty %}
         暂无热门博客
         {% endfor%}
-    </ul>
     </div>
     <script>
         // 图表配置
