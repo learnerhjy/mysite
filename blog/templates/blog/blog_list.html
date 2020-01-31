@@ -32,7 +32,6 @@
                 <span class="glyphicon glyphicon-list-alt"></span>评论数({% get_comment_count blog %})
                 <span class="glyphicon glyphicon-thumbs-up"></span>点赞数({% get_like_count blog %})
 							</p>
-							<p>{{blog.content|safe|truncatechars:120}}</p>
 						</div>
 					{% empty %}
 						<div class="blog">
