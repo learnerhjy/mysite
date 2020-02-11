@@ -21,31 +21,39 @@
 <div class="container">
 	<div class="row">
 		<div class="col-xs-10">
-			<h3>{{blog.title}}</h3>
-			<ul class="blog-info-description">
-				<li><span class="label label-default">作者</span>
-					<span class="glyphicon glyphicon-user"></span>
-					<a href="{% url 'user_info' blog.author.pk %}">{{blog.author}}</a>
-				</li>
-				<li><span class="label label-default">分类</span>
-					<span class="glyphicon glyphicon-tag"></span>
-					<a href = "{% url 'blogs_with_type' blog.blog_type.pk%}">
-						{{blog.blog_type}}
-					</a>
-				</li>
-				<li><span class="label label-default">创建时间</span>
-					<span class="glyphicon glyphicon-time"></span>{{blog.create_time|date:"Y-m-d H:i:s"}}
-				</li>
-				<li>
-					<span class="label label-default">阅读次数</span>
-					<span class="glyphicon glyphicon-sunglasses"></span>({{blog.get_read_num}})
-				</li>  
-				<li>
-					<span class="label label-default">评论次数</span>
-					<span class="glyphicon glyphicon-list-alt"></span>({% get_comment_count blog %})
-				</li> 
-			</ul>
-			<div class="blog-content">{{blog.content|safe}}</div>
+			<div class="panel panel-info">
+			  <div class="panel-heading">
+			    <div class="panel-title">
+			    	<h3>{{blog.title}}</h3>
+					<ul class="blog-info-description panel-title">
+						<li><span class="label label-default">作者</span>
+							<span class="glyphicon glyphicon-user"></span>
+							<a href="{% url 'user_info' blog.author.pk %}">{{blog.author}}</a>
+						</li>
+						<li><span class="label label-default">分类</span>
+							<span class="glyphicon glyphicon-tag"></span>
+							<a href = "{% url 'blogs_with_type' blog.blog_type.pk%}">
+								{{blog.blog_type}}
+							</a>
+						</li>
+						<li><span class="label label-default">创建时间</span>
+							<span class="glyphicon glyphicon-time"></span>{{blog.create_time|date:"Y-m-d H:i:s"}}
+						</li>
+						<li>
+							<span class="label label-default">阅读次数</span>
+							<span class="glyphicon glyphicon-sunglasses"></span>({{blog.get_read_num}})
+						</li>  
+						<li>
+							<span class="label label-default">评论次数</span>
+							<span class="glyphicon glyphicon-list-alt"></span>({% get_comment_count blog %})
+						</li> 
+					</ul>
+		      	</div>
+		 	</div>
+			  <div class="blog-content panel-body">
+			    {{blog.content|safe}}
+			  </div>
+		</div>
 			<div class="like" onclick="likeChange(this,'{% get_content_type blog %}',{{ blog.pk }})">
 				<span class="glyphicon glyphicon-thumbs-up {% get_like_status blog %}"></span>
 				<span class="liked-num">{% get_like_count blog %}</span>
@@ -101,10 +109,16 @@
 			{% for comment in comments %}
 
 			<div id = "root_comment_{{ comment.pk }}" class="comment">	
-				<span>{{comment.author.get_username_or_nickname}}</span>
-				<span>({{ comment.date|date:"Y-m-d H:i:s"}}):</span>
-				<div id="comment_{{ comment.pk }}" class="list-group-item">
-					{{ comment.text|safe }}
+				<div class="panel panel-primary">
+				  <div class="panel-heading">
+				    <h3 class="panel-title">
+				    	<span>{{comment.author.get_username_or_nickname}}</span>
+						<span>({{ comment.date|date:"Y-m-d H:i:s"}}):</span>
+				    </h3>
+				  </div>
+				  <div id="comment_{{ comment.pk }}" class="panel-body">
+				    {{ comment.text|safe }}
+				  </div>
 				</div>
 				<div class="like" onclick="likeChange(this,'{% get_content_type comment %}',{{ comment.pk }})">
 					<span class="glyphicon glyphicon-thumbs-up {% get_like_status comment %}"></span>
@@ -119,12 +133,18 @@
 
 				{% for reply in comment.root_comment.all %}
 					<div class="reply">
-						<span>{{reply.author.get_username_or_nickname}}</span>
-						<span>({{ reply.date|date:"Y-m-d H:i:s"}})回复</span>
-						<span>{{reply.reply_to.get_username_or_nickname}}:</span>
-					<div id="comment_{{ reply.pk }}">
-						{{ reply.text|safe }}
-					</div>
+					<div class="panel panel-info">
+						  <div class="panel-heading">
+						    <h3 class="panel-title">
+								<span>{{reply.author.get_username_or_nickname}}</span>
+								<span>({{ reply.date|date:"Y-m-d H:i:s"}})回复</span>
+								<span>{{reply.reply_to.get_username_or_nickname}}:</span>
+						    </h3>
+						  </div>
+						  <div id="reply_{{ reply.pk }}" class="panel-body">
+								{{ reply.text|safe }}
+						  </div>
+						</div>
 					<div class="like" onclick="likeChange(this,'{% get_content_type reply %}',{{ reply.pk }})">
 						<span class="glyphicon glyphicon-thumbs-up {% get_like_status reply %}"></span>
 						<span class="liked-num">{% get_like_count reply %}</span>
@@ -176,10 +196,13 @@
 						if($('#reply_comment_id').val()=='0'){
 							//插入评论
 							var comment_html = 
-							'<div id = "root_comment_{0}" class="comment">'+	
-								'<span>{1}</span>'+
-								'<span>({2}):</span>'+
-									'<div id="comment_{0}">{3}</div>'+
+							'<div id = "root_comment_{0}" class="comment">'+
+								'<div class="panel panel-primary">'+	
+									'<div class="panel-heading">'+
+										'<h3 class="panel-title">'+
+											'<span>{1}</span>'+
+											'<span>({2}):</span></h3></div>'+
+											'<div id="comment_{0}" class="panel-body">{3}</div></div>'+
 									'<div class="like" onclick="likeChange(this,\'{4}\',{0})">'+
 										'<span class="glyphicon glyphicon-thumbs-up"></span>'+
 										'<span class="liked-num">0	</span>'+
@@ -193,10 +216,13 @@
 							//插入回复
 							var reply_html = 
 							'<div class="reply">' +
-								'<span>{1}</span>' +
-								'<span>({2})回复</span>' +
-								'<span>{4}:</span>' +
-								'<div id="comment_{0}">{3}</div>' +					
+								'<div class="panel panel-info">' +
+	                            	'<div class="panel-heading">'
+									'<h3 class="panel-title">' +
+									'<span>{1}</span>' +
+									'<span>({2})回复</span>' +
+									'<span>{4}:</span></h3></div>' +
+									'<div id="comment_{0}" class="panel-body">{3}</div></div>' +			
 								'<div class="like" onclick="likeChange(this,\'{5}\',{0})">' +
 									'<span class="glyphicon glyphicon-thumbs-up"></span>' +
 									'<span class="liked-num">0	</span>' +
@@ -204,7 +230,7 @@
 								'<a href="javascript:reply({0},\'true\')">回复</a>' +
 							'</div>';
 							reply_html = reply_html.format(data['pk'],data['username'],data['date'],data['text'],data['reply_to'],data['content_type']);
-							$("#root_comment_" + data['root_pk']).append(reply_html);
+							$("#reply" + data['pk']).append(reply_html);
 						}
 						//清空编辑框的内容
 						CKEDITOR.instances['id_text'].setData('');
