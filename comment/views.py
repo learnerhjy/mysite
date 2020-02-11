@@ -28,7 +28,7 @@ def update_comment(request):
 		comment.send_email()
 
 		data['status'] = 'SUCCESS'
-		data['username'] = comment.author.username
+		data['username'] = comment.author.get_username_or_nickname()
 		data['date'] = comment.date.strftime('%Y-%m-%d %H:%M:%S')
 		#data['date'] = '刚刚'
 		data['text'] = comment.text
