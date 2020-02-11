@@ -230,7 +230,7 @@
 								'<a href="javascript:reply({0},\'true\')">回复</a>' +
 							'</div>';
 							reply_html = reply_html.format(data['pk'],data['username'],data['date'],data['text'],data['reply_to'],data['content_type']);
-							$("#reply" + data['pk']).append(reply_html);
+							$("#reply_" + data['pk']).append(reply_html);
 						}
 						//清空编辑框的内容
 						CKEDITOR.instances['id_text'].setData('');
